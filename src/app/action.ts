@@ -1,24 +1,7 @@
 "use server";
 import z from "zod";
 import { revalidatePath } from "next/cache";
-
-interface Data {
-  ip: string;
-  location: {
-    country: string;
-    region: string;
-    timezone: string;
-  };
-  domains: string[];
-  as: {
-    asn: number;
-    name: string;
-    route: string;
-    domain: string;
-    type: string;
-  };
-  isp: string;
-}
+import { Data } from "@/app/types";
 
 export async function ipSearch(
   prevState: {
@@ -41,7 +24,7 @@ export async function ipSearch(
 
   try {
     const res = await fetch(
-      `https://geo.ipify.org/api/v2/country?apiKey=at_cme4nGNshJDTm681IJPFZdA64XY5f&ipAddress=${data.ipAddress}`,
+      `https://geo.ipify.org/api/v2/country,city?apiKey=at_cme4nGNshJDTm681IJPFZdA64XY5f&ipAddress=${data.ipAddress}`,
       {
         method: "GET",
       }

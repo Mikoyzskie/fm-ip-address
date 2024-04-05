@@ -5,25 +5,8 @@ import clsx from "clsx";
 import { useFormState, useFormStatus } from "react-dom";
 import { useEffect, useState } from "react";
 import { ipSearch } from "./action";
-
-interface Data {
-  ip: string;
-  location: {
-    country: string;
-    region: string;
-    timezone: string;
-  };
-  domains: string[];
-  as: {
-    asn: number;
-    name: string;
-    route: string;
-    domain: string;
-    type: string;
-  };
-  isp: string;
-}
-
+import { Data } from "@/app/types";
+import Map from "@/app/Map"
 interface IInitial {
   message: string;
   data: Data | {}
@@ -32,16 +15,32 @@ interface IInitial {
 const initialState: IInitial = {
   message: "",
   data: {
-    ip: '',
-    location: { country: '', region: '', timezone: '' },
+    ip: "",
+    location: {
+      country: "",
+      region: "",
+      city: "",
+      lat: 0,
+      lng: 0,
+      postalCode: "",
+      timezone: "",
+      geonameId: 0
+    },
+    domains: [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
     as: {
       asn: 0,
-      name: '',
-      route: '',
-      domain: '',
-      type: ''
+      name: "",
+      route: "",
+      domain: "",
+      type: ""
     },
-    isp: ''
+    isp: ""
   }
 };
 
@@ -62,7 +61,7 @@ function SubmitButton() {
 export default function Home() {
 
   const [state, formAction] = useFormState(ipSearch, initialState);
-  const [details, setDetails] = useState()
+  const [details, setDetails] = useState<Data>()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,19 +74,17 @@ export default function Home() {
 
         try {
           const res = await fetch(
-            `https://geo.ipify.org/api/v2/country?apiKey=at_cme4nGNshJDTm681IJPFZdA64XY5f&ipAddress=${jsonData.ip}`
+            `https://geo.ipify.org/api/v2/country,city?apiKey=at_cme4nGNshJDTm681IJPFZdA64XY5f&ipAddress=${jsonData.ip}`
           );
           if (!res.ok) {
             throw new Error('Network response was not ok.');
           }
           const result = await res.json();
+          setDetails(result)
 
-          console.log(result);
         } catch (error) {
           console.error('Error fetching data:', error);
         }
-
-
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -120,35 +117,35 @@ export default function Home() {
             <div className="max-w-[1110px] relative -bottom-1/4 w-full bg-white shadow-md rounded-[15px] px-8 py-9 flex gap-8 justify-center">
               <div className="flex flex-col items-start gap-[13px] basis-full">
                 <p className="tracking-[1.75px] text-xs font-bold text-[rgba(44,44,44,0.5)]">IP Address</p>
-                <h2 className="text-[#2C2C2C] text-[26px] leading-[30px] font-bold -tracking-[0.23px] ">192.212.174.101</h2>
+                <h2 className="text-[#2C2C2C] text-[26px] leading-[30px] font-bold -tracking-[0.23px] ">{details ? details.ip : "0.0.0.0"}</h2>
               </div>
               <svg className="self-center basis-1" width="1" height="75" viewBox="0 0 1 75" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect opacity="0.15" width="1" height="75" fill="black" />
               </svg>
               <div className="flex flex-col items-start gap-[13px] basis-full">
                 <p className="tracking-[1.75px] text-xs font-bold text-[rgba(44,44,44,0.5)]">Location</p>
-                <h2 className="text-[#2C2C2C] text-[26px] leading-[30px] font-bold -tracking-[0.23px] ">Brooklyn, NY 10001</h2>
+                <h2 className="text-[#2C2C2C] text-[26px] leading-[30px] font-bold -tracking-[0.23px] ">{details ? `${details.location.city}, ${details.location.region} ${details.location.postalCode}` : "Location"}</h2>
               </div>
               <svg className="self-center basis-1" width="1" height="75" viewBox="0 0 1 75" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect opacity="0.15" width="1" height="75" fill="black" />
               </svg>
               <div className="flex flex-col items-start gap-[13px] basis-full">
                 <p className="tracking-[1.75px] text-xs font-bold text-[rgba(44,44,44,0.5)]">Timezone</p>
-                <h2 className="text-[#2C2C2C] text-[26px] leading-[30px] font-bold -tracking-[0.23px] ">UTC -05:00</h2>
+                <h2 className="text-[#2C2C2C] text-[26px] leading-[30px] font-bold -tracking-[0.23px] ">{details ? `UTC ${details.location.timezone}` : "UTC 0:00"}</h2>
               </div>
               <svg className="self-center basis-1" width="1" height="75" viewBox="0 0 1 75" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect opacity="0.15" width="1" height="75" fill="black" />
               </svg>
               <div className="flex flex-col items-start gap-[13px] basis-full">
                 <p className="tracking-[1.75px] text-xs font-bold text-[rgba(44,44,44,0.5)]">ISP</p>
-                <h2 className="text-[#2C2C2C] text-[26px] leading-[30px] font-bold -tracking-[0.23px] ">SpaceX Starlink</h2>
+                <h2 className="text-[#2C2C2C] text-[26px] leading-[30px] font-bold -tracking-[0.23px] ">{details ? details.isp : "ISP"}</h2>
               </div>
             </div>
           </div>
         </div>
       </section>
-      <section className="grow bg-neutral-500 h-full">
-
+      <section className="grow  h-full">
+        <Map />
       </section>
     </div>
   );
