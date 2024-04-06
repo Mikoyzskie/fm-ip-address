@@ -1,7 +1,32 @@
 "use server";
 import z from "zod";
 import { revalidatePath } from "next/cache";
-import { Data } from "@/app/types";
+interface LocationData {
+  country: string;
+  region: string;
+  city: string;
+  lat: number;
+  lng: number;
+  postalCode: string;
+  timezone: string;
+  geonameId: number;
+}
+
+interface AsData {
+  asn: number;
+  name: string;
+  route: string;
+  domain: string;
+  type: string;
+}
+
+interface Data {
+  ip: string;
+  location: LocationData;
+  domains: string[];
+  as: AsData;
+  isp: string;
+}
 
 export async function ipSearch(
   prevState: {
@@ -29,13 +54,13 @@ export async function ipSearch(
         method: "GET",
       }
     );
-    const result: Data = await res.json();
+    const results: Data = await res.json();
 
-    if (!res.ok) return { message: "internal error", result: {} };
+    if (!res.ok) return { message: "internal error" };
 
     revalidatePath("/");
-    return { message: `Ip found`, result: result };
+    return { message: `Ip found`, result: results };
   } catch (e) {
-    return { message: "ip not found", result: {} };
+    return { message: "ip not found" };
   }
 }
