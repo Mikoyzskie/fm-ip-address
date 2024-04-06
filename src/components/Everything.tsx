@@ -89,6 +89,7 @@ export default function Everything() {
         if (state && state.result) {
 
             setMarkerData({ coordinates: [state.result.location.lat, state.result.location.lng], title: "result" })
+            setDetails(state.result)
         }
 
     }, [state])
@@ -150,7 +151,7 @@ export default function Everything() {
                             <SubmitButton />
                         </form>
                     </div>
-                    <div className="md:px-0 px-6 absolute -bottom-full md:-bottom-1/4 z-10  max-w-[376px] md:max-w-[1110px] w-full mx-auto inset-x-0">
+                    <div className="md:px-0 px-6 absolute -bottom-full md:-bottom-[100px] z-10  max-w-[376px] md:max-w-[1110px] w-full mx-auto inset-x-0">
                         <div className=" bg-white shadow-md rounded-[15px] px-8 py-9 flex flex-col md:flex-row gap-6 md:gap-8 justify-center  text-center md:text-start">
                             <div className="flex flex-col md:items-start gap-[7px] md:gap-[13px] basis-full items-center">
                                 <p className="tracking-[1.75px] text-[10px] md:text-xs font-bold text-[rgba(44,44,44,0.5)]">IP Address</p>
