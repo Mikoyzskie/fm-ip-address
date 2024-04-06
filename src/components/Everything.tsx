@@ -140,7 +140,7 @@ export default function Everything() {
                         priority
                         className="h-[280px] w-full object-cover"
                     />
-                    <div className="absolute inset-0 flex flex-col justify-center items-center pt-[33px] tracking-[-0.29px]">
+                    <div className="absolute inset-0 flex flex-col justify-center items-center top-[33px] pt-[33px] tracking-[-0.29px]">
                         <h1 className="font-medium text-[32px] text-white leading-[30px] mb-8">IP Address Tracker</h1>
                         <form action={formAction} className="max-w-[555px] w-full flex ">
                             <div className="px-6 py-[18px] bg-white w-full rounded-l-[15px]">
