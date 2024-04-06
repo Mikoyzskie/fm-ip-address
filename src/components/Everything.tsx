@@ -4,12 +4,10 @@ import Image from "next/image";
 import { ipSearch } from "@/app/action";
 import { useFormState, useFormStatus } from "react-dom";
 import clsx from "clsx";
-import "leaflet/dist/leaflet.css";
-import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet"
-import { useState, useRef, useEffect, FC } from "react"
-import { Loader } from "@/components/Loader";
-import "leaflet-defaulticon-compatibility";
-import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
+import { useState, useEffect } from "react"
+import dynamic from "next/dynamic";
+const DynamicMapComponent = dynamic(() => import("@/components/Map"), { ssr: false });
+
 
 interface LocationData {
     country: string;
@@ -85,47 +83,20 @@ export default function Everything() {
     const [state, formAction] = useFormState(ipSearch, initialState);
     const [details, setDetails] = useState<Data>()
     const [markerData, setMarkerData] = useState<MarkerData | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
 
-    const mapRef = useRef<any | null>(null);
-
-    const ZoomHandler: FC = () => {
-        const map = useMap();
-        const flyToMarker = (coordinates: [number, number], zoom: number) => {
-            if (coordinates && typeof coordinates[0] !== "undefined") {
-                map.flyTo(coordinates, zoom, {
-                    animate: true,
-                    duration: 1.5,
-                });
-            }
-        };
-        useMapEvents({
-            zoomend: () => {
-                setLoading(false);
-            },
-        });
-        useEffect(() => {
-            if (markerData) {
-                if (markerData.coordinates && typeof markerData.coordinates[0] !== "undefined") {
-                    flyToMarker(markerData.coordinates, 11);
-                }
-            }
-        }, [markerData]);
-        return null;
-    };
 
     useEffect(() => {
         if (state && state.result) {
-            setLoading(true);
+
             setMarkerData({ coordinates: [state.result.location.lat, state.result.location.lng], title: "result" })
         }
-        setLoading(false);
+
     }, [state])
 
     useEffect(() => {
 
         const fetchData = async () => {
-            setLoading(true);
+
             try {
                 const response = await fetch('https://api.ipify.org/?format=json');
                 if (!response.ok) {
@@ -142,7 +113,7 @@ export default function Everything() {
                     }
                     const result = await res.json();
                     setDetails(result)
-                    setLoading(false);
+
                     setMarkerData({ coordinates: [result.location.lat, result.location.lng], title: "result" })
 
                 } catch (error) {
@@ -209,24 +180,7 @@ export default function Everything() {
                 </div>
             </section>
             <section className="grow w-full h-full">
-                {loading && <Loader />}
-
-                <div className='relative z-0'>
-                    <MapContainer center={[43.6426, -79.3871]} zoom={11} style={{ height: "calc(100vh - 280px)", width: "100vw" }}>
-                        {/* 21. Set the tile layer for the map. */}
-                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        {/* 22. Conditionally render the marker. */}
-                        {markerData && markerData.coordinates && (
-                            <Marker position={markerData.coordinates}>
-                                <Popup>{markerData.title}</Popup>
-                            </Marker>
-                        )}
-                        {/* 23. Include the ZoomHandler for zoom events. */}
-                        <ZoomHandler />
-                    </MapContainer>
-                </div>
-
-
+                <DynamicMapComponent markerData={markerData} />
             </section>
         </div>
     );
